@@ -13,6 +13,7 @@ const state = {
         asrMethod: 0, // 0 = Standard (Shafi), 1 = Hanafi
         timeFormat: 12
     },
+    tasbeehCount: 0,
     prayerTimes: null,
     currentPrayer: null
 };
@@ -107,6 +108,42 @@ function initializeEventListeners() {
             }
         }
     });
+
+    // Tasbeeh Modal
+    const tasbeehBtn = document.getElementById('tasbeehBtn');
+    if (tasbeehBtn) {
+        tasbeehBtn.addEventListener('click', () => {
+            openModal('tasbeehModal');
+            updateTasbeehDisplay();
+        });
+    }
+
+    const closeTasbeehBtn = document.getElementById('closeTasbeehBtn');
+    if (closeTasbeehBtn) {
+        closeTasbeehBtn.addEventListener('click', () => {
+            closeModal('tasbeehModal');
+        });
+    }
+
+    const tasbeehCountBtn = document.getElementById('tasbeehCountBtn');
+    if (tasbeehCountBtn) {
+        tasbeehCountBtn.addEventListener('click', () => {
+            state.tasbeehCount++;
+            updateTasbeehDisplay();
+            saveTasbeehCount();
+        });
+    }
+
+    const tasbeehResetBtn = document.getElementById('tasbeehResetBtn');
+    if (tasbeehResetBtn) {
+        tasbeehResetBtn.addEventListener('click', () => {
+            if (confirm('Reset Tasbeeh counter?')) {
+                state.tasbeehCount = 0;
+                updateTasbeehDisplay();
+                saveTasbeehCount();
+            }
+        });
+    }
 
     // Close modals on backdrop click
     document.querySelectorAll('.modal').forEach(modal => {
@@ -526,4 +563,26 @@ function loadSettings() {
         document.getElementById('asrMethod').value = state.settings.asrMethod || 0;
         document.getElementById('timeFormat').value = state.settings.timeFormat;
     }
+
+    // Load Tasbeeh count
+    const savedTasbeeh = localStorage.getItem('tasbeehCount');
+    if (savedTasbeeh) {
+        state.tasbeehCount = parseInt(savedTasbeeh, 10);
+        updateTasbeehDisplay();
+    }
 }
+
+// ========================================
+// TASBEEH HELPER FUNCTIONS
+// ========================================
+function updateTasbeehDisplay() {
+    const display = document.getElementById('tasbeehCount');
+    if (display) {
+        display.textContent = state.tasbeehCount;
+    }
+}
+
+function saveTasbeehCount() {
+    localStorage.setItem('tasbeehCount', state.tasbeehCount);
+}
+
