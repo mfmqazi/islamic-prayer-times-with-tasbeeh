@@ -13,7 +13,13 @@ const state = {
         asrMethod: 0, // 0 = Standard (Shafi), 1 = Hanafi
         timeFormat: 12
     },
-    tasbeehCount: 0,
+    tasbeeh: {
+        count: 0,
+        loop: 1,
+        beadColor: '#2d2d2d',
+        soundEnabled: true,
+        vibrateEnabled: true
+    },
     prayerTimes: null,
     currentPrayer: null
 };
@@ -109,41 +115,76 @@ function initializeEventListeners() {
         }
     });
 
-    // Tasbeeh Modal
+    // Enhanced Tasbeeh Modal
     const tasbeehBtn = document.getElementById('tasbeehBtn');
     if (tasbeehBtn) {
         tasbeehBtn.addEventListener('click', () => {
             openModal('tasbeehModal');
-            updateTasbeehDisplay();
+            initializeTasbeeh();
         });
     }
 
-    const closeTasbeehBtn = document.getElementById('closeTasbeehBtn');
-    if (closeTasbeehBtn) {
-        closeTasbeehBtn.addEventListener('click', () => {
+    const backTasbeehBtn = document.getElementById('backTasbeehBtn');
+    if (backTasbeehBtn) {
+        backTasbeehBtn.addEventListener('click', () => {
             closeModal('tasbeehModal');
         });
     }
 
-    const tasbeehCountBtn = document.getElementById('tasbeehCountBtn');
-    if (tasbeehCountBtn) {
-        tasbeehCountBtn.addEventListener('click', () => {
-            state.tasbeehCount++;
-            updateTasbeehDisplay();
-            saveTasbeehCount();
+    // Tap anywhere to count
+    const tasbeehCountArea = document.getElementById('tasbeehCountArea');
+    if (tasbeehCountArea) {
+        tasbeehCountArea.addEventListener('click', () => {
+            incrementTasbeeh();
         });
     }
 
-    const tasbeehResetBtn = document.getElementById('tasbeehResetBtn');
-    if (tasbeehResetBtn) {
-        tasbeehResetBtn.addEventListener('click', () => {
+    // Reset button
+    const resetTasbeehBtn = document.getElementById('resetTasbeehBtn');
+    if (resetTasbeehBtn) {
+        resetTasbeehBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             if (confirm('Reset Tasbeeh counter?')) {
-                state.tasbeehCount = 0;
-                updateTasbeehDisplay();
-                saveTasbeehCount();
+                resetTasbeeh();
             }
         });
     }
+
+    // Sound toggle
+    const soundToggleBtn = document.getElementById('soundToggleBtn');
+    if (soundToggleBtn) {
+        soundToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            state.tasbeeh.soundEnabled = !state.tasbeeh.soundEnabled;
+            soundToggleBtn.classList.toggle('muted', !state.tasbeeh.soundEnabled);
+            saveTasbeehSettings();
+        });
+    }
+
+    // Vibrate toggle
+    const vibrateToggleBtn = document.getElementById('vibrateToggleBtn');
+    if (vibrateToggleBtn) {
+        vibrateToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            state.tasbeeh.vibrateEnabled = !state.tasbeeh.vibrateEnabled;
+            vibrateToggleBtn.classList.toggle('muted', !state.tasbeeh.vibrateEnabled);
+            saveTasbeehSettings();
+        });
+    }
+
+    // Bead color selection
+    document.querySelectorAll('.bead-color').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.querySelectorAll('.bead-color').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const color = btn.style.background;
+            state.tasbeeh.beadColor = color;
+            document.documentElement.style.setProperty('--bead-color', color);
+            updateBeads();
+            saveTasbeehSettings();
+        });
+    });
 
     // Close modals on backdrop click
     document.querySelectorAll('.modal').forEach(modal => {
@@ -564,25 +605,133 @@ function loadSettings() {
         document.getElementById('timeFormat').value = state.settings.timeFormat;
     }
 
-    // Load Tasbeeh count
-    const savedTasbeeh = localStorage.getItem('tasbeehCount');
+    // Load Tasbeeh settings
+    const savedTasbeeh = localStorage.getItem('tasbeehSettings');
     if (savedTasbeeh) {
-        state.tasbeehCount = parseInt(savedTasbeeh, 10);
-        updateTasbeehDisplay();
+        const settings = JSON.parse(savedTasbeeh);
+        state.tasbeeh = { ...state.tasbeeh, ...settings };
     }
 }
 
 // ========================================
-// TASBEEH HELPER FUNCTIONS
+// ENHANCED TASBEEH FUNCTIONS
 // ========================================
+function initializeTasbeeh() {
+    generateBeads();
+    updateTasbeehDisplay();
+    updateBeads();
+
+    // Set toggle button states
+    const soundBtn = document.getElementById('soundToggleBtn');
+    const vibrateBtn = document.getElementById('vibrateToggleBtn');
+    if (soundBtn) soundBtn.classList.toggle('muted', !state.tasbeeh.soundEnabled);
+    if (vibrateBtn) vibrateBtn.classList.toggle('muted', !state.tasbeeh.vibrateEnabled);
+
+    // Set active bead color
+    document.querySelectorAll('.bead-color').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.style.background === state.tasbeeh.beadColor) {
+            btn.classList.add('active');
+        }
+    });
+
+    document.documentElement.style.setProperty('--bead-color', state.tasbeeh.beadColor);
+}
+
+function generateBeads() {
+    const container = document.getElementById('beadsContainer');
+    if (!container) return;
+
+    container.innerHTML = '';
+    for (let i = 0; i < 33; i++) {
+        const bead = document.createElement('div');
+        bead.className = 'bead';
+        bead.dataset.index = i;
+        container.appendChild(bead);
+    }
+}
+
+function incrementTasbeeh() {
+    state.tasbeeh.count++;
+
+    // Play sound if enabled
+    if (state.tasbeeh.soundEnabled) {
+        playTasbeehSound();
+    }
+
+    // Vibrate if enabled
+    if (state.tasbeeh.vibrateEnabled && navigator.vibrate) {
+        navigator.vibrate(50);
+    }
+
+    // Check if loop completed
+    if (state.tasbeeh.count >= 33) {
+        state.tasbeeh.count = 0;
+        state.tasbeeh.loop++;
+
+        // Stronger feedback for loop completion
+        if (state.tasbeeh.vibrateEnabled && navigator.vibrate) {
+            navigator.vibrate([100, 50, 100]);
+        }
+    }
+
+    updateTasbeehDisplay();
+    updateBeads();
+    saveTasbeehSettings();
+}
+
+function resetTasbeeh() {
+    state.tasbeeh.count = 0;
+    state.tasbeeh.loop = 1;
+    updateTasbeehDisplay();
+    updateBeads();
+    saveTasbeehSettings();
+}
+
 function updateTasbeehDisplay() {
-    const display = document.getElementById('tasbeehCount');
-    if (display) {
-        display.textContent = state.tasbeehCount;
+    const countDisplay = document.getElementById('tasbeehCount');
+    const loopDisplay = document.getElementById('loopNumber');
+
+    if (countDisplay) {
+        countDisplay.textContent = state.tasbeeh.count;
+    }
+
+    if (loopDisplay) {
+        loopDisplay.textContent = state.tasbeeh.loop;
     }
 }
 
-function saveTasbeehCount() {
-    localStorage.setItem('tasbeehCount', state.tasbeehCount);
+function updateBeads() {
+    const beads = document.querySelectorAll('.bead');
+    beads.forEach((bead, index) => {
+        if (index < state.tasbeeh.count) {
+            bead.classList.add('filled');
+        } else {
+            bead.classList.remove('filled');
+        }
+    });
+}
+
+function playTasbeehSound() {
+    // Create a simple beep sound using Web Audio API
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.frequency.value = 800;
+    oscillator.type = 'sine';
+
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.1);
+}
+
+function saveTasbeehSettings() {
+    localStorage.setItem('tasbeehSettings', JSON.stringify(state.tasbeeh));
 }
 

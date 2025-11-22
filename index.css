@@ -817,4 +817,229 @@ body {
         width: 140px;
         height: 140px;
     }
+}/* Enhanced Tasbeeh Counter Styles */
+.tasbeeh-modal-content {
+    max-width: 420px;
+    padding: 0;
+    overflow: hidden;
+}
+
+.tasbeeh-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-bottom: 1px solid var(--color-border-accent);
+    margin-bottom: 0;
+}
+
+.tasbeeh-header h2 {
+    flex: 1;
+    text-align: center;
+    margin: 0;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: var(--color-gold);
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    border-radius: var(--radius-md);
+}
+
+.back-btn:hover {
+    background: rgba(212, 175, 55, 0.15);
+}
+
+.tasbeeh-controls {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.control-btn {
+    background: rgba(30, 35, 50, 0.7);
+    border: 1px solid var(--color-border-accent);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm);
+    color: var(--color-gold);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-btn:hover {
+    background: rgba(212, 175, 55, 0.15);
+    border-color: var(--color-gold);
+}
+
+.control-btn.muted {
+    opacity: 0.5;
+}
+
+.control-btn.muted .sound-on {
+    display: none;
+}
+
+.tasbeeh-enhanced-body {
+    padding: var(--spacing-2xl) var(--spacing-xl);
+    cursor: pointer;
+    user-select: none;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xl);
+}
+
+.loop-indicator {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.count-display-large {
+    font-size: 5rem;
+    font-weight: 700;
+    color: var(--color-gold);
+    line-height: 1;
+    display: flex;
+    align-items: baseline;
+    gap: var(--spacing-sm);
+}
+
+.count-total {
+    font-size: 2rem;
+    color: var(--color-text-muted);
+}
+
+.beads-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-width: 280px;
+    justify-content: center;
+    margin: var(--spacing-lg) 0;
+}
+
+.bead {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(156, 163, 175, 0.2);
+    border: 2px solid rgba(156, 163, 175, 0.3);
+    transition: all var(--transition-base);
+}
+
+.bead.filled {
+    background: var(--bead-color, #2d2d2d);
+    border-color: var(--bead-color, #2d2d2d);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.tap-instruction {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    margin-top: var(--spacing-lg);
+}
+
+.dhikr-section {
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-top: 1px solid var(--color-border-accent);
+    background: rgba(20, 24, 36, 0.5);
+}
+
+.dhikr-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.dhikr-header span {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+}
+
+.view-all-btn {
+    background: none;
+    border: none;
+    color: var(--color-gold);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.view-all-btn:hover {
+    color: var(--color-gold-light);
+}
+
+.bead-colors {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+}
+
+.bead-color {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.bead-color:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.bead-color.active {
+    border-color: var(--color-gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
+}
+
+@media (max-width:768px) {
+    .count-display-large {
+        font-size: 4rem;
+    }
+
+    .count-total {
+        font-size: 1.5rem;
+    }
+
+    .beads-container {
+        max-width: 240px;
+    }
+
+    .bead {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+@media (max-width:480px) {
+    .count-display-large {
+        font-size: 3rem;
+    }
+
+    .count-total {
+        font-size: 1.25rem;
+    }
+
+    .tasbeeh-enhanced-body {
+        min-height: 350px;
+        padding: var(--spacing-xl) var(--spacing-md);
+    }
 }
